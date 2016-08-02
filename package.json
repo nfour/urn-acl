@@ -7,7 +7,8 @@
     "main": "./dist/Schema",
 
     "scripts": {
-        "test"  : "npm run build && nyc --require babel-register mocha -G $(find . -name '*.spec.js' -not -path '*/node_modules/*')",
+        "test"  : "npm run build && nyc --require babel-register mocha -G test",
+        "devtest"  : "mocha --require babel-register -G test",
         "dev"   : "node -r babel-register test",
         "build" : "babel ./src --out-dir ./dist"
     },

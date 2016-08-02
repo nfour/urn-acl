@@ -1,8 +1,8 @@
 import { escapeRegex } from './utils'
 import Validator from './Validator'
+import UriValidator from './UriValidator'
 
-export { Validator }
-export { default as UriValidator } from './UriValidator'
+export { Validator, UriValidator }
 
 export default class UrnSchema {
     config = {

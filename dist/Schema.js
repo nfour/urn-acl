@@ -11,20 +11,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _UriValidator = require('./UriValidator');
-
-Object.defineProperty(exports, 'UriValidator', {
-    enumerable: true,
-    get: function get() {
-        return _interopRequireDefault(_UriValidator).default;
-    }
-});
-
 var _utils = require('./utils');
 
 var _Validator = require('./Validator');
 
 var _Validator2 = _interopRequireDefault(_Validator);
+
+var _UriValidator = require('./UriValidator');
+
+var _UriValidator2 = _interopRequireDefault(_UriValidator);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33,6 +28,7 @@ function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 exports.Validator = _Validator2.default;
+exports.UriValidator = _UriValidator2.default;
 
 var UrnSchema = function () {
     function UrnSchema(keyInput) {
