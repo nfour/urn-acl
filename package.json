@@ -1,15 +1,15 @@
 {
-    "name"        : "urn-acl",
-    "version"     : "0.0.0",
+    "name"        : "urn-schema",
+    "version"     : "0.1.0",
     "private"     : true,
     "description" : "",
 
-    "main": "./dist/urn-acl",
+    "main": "./dist/Schema",
 
     "scripts": {
-        "test": "npm run build && nyc --require babel-register mocha -G $(find . -name '*.spec.js' -not -path '*/node_modules/*')",
-        "dev": "node -r babel-register test",
-        "build": "babel ./src --out-dir ./dist"
+        "test"  : "npm run build && nyc --require babel-register mocha -G $(find . -name '*.spec.js' -not -path '*/node_modules/*')",
+        "dev"   : "node -r babel-register test",
+        "build" : "babel ./src --out-dir ./dist"
     },
 
     "dependencies": {

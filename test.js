@@ -1,4 +1,4 @@
-import UrnSchema, { UriValidator } from './src/Urn'
+import UrnSchema, { UriValidator } from './src/Schema'
 
 const schema = new UrnSchema('version:method:scope:uri', {
     uri: UriValidator,
@@ -7,8 +7,6 @@ const schema = new UrnSchema('version:method:scope:uri', {
 const aclSchema = schema.createAcl({
     rpo_audit_criteria: [
         'urn:1.0:POST:rpo:audit_criteria/*/test',
-        'urn:3.0:*',
-        'urn:2.0:GET:rpo:audit_criteria',
     ],
 
     pass_all: [
@@ -18,10 +16,7 @@ const aclSchema = schema.createAcl({
 
 const testCases = {
     rpo_audit_criteria: [
-        "1.0/rpo/audit_criteria/22/test",
-        "3.0/rpo/test",
-        "2.0/erp/orders/2",
-        "4.0/fails/on/version",
+        "1.0/rpo/audit_criteria/22/test?orderBy&direction",
     ]
 }
 
@@ -34,8 +29,7 @@ for ( let key in testCases )
 
         // console.log(aclSchema.groups.rpo_audit_criteria)
         console.log('-----------')
-        console.log(key, test)
-        console.log(key, test)
+        console.log({ version, scope, uri, method }, test)
 
         console.log(
             aclSchema.validate(key, {

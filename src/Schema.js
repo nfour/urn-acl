@@ -1,70 +1,8 @@
-import { clone, typeOf } from 'lutils'
 import { escapeRegex } from './utils'
-import Transposer from 'transposer'
+import Validator from './Validator'
 
-export class Validator {
-    constructor(schema, { key, value }) {
-        this.schema = schema
-        this.key    = key
-        this.value  = value
-    }
-
-    compile() {
-        const varKey = this.schema.getVariableKey(this.value)
-
-        if ( varKey )
-            this.validate = (value, data) => this.validateVariable(varKey, value, data)
-    }
-
-    validateVariable(varKey, value, data) {
-        const resolvedValue = new Transposer(data).get(varKey)
-
-        const compare = (input) => String(input) === value
-
-        if ( typeOf.Array(resolvedValue) )
-            return resolvedValue.some(compare)
-
-        return compare(resolvedValue)
-    }
-
-    validate(value, data) {
-        return value === this.value
-    }
-}
-
-export class UriValidator extends Validator {
-    compile() {
-        this.validators = this.splitUri(this.value)
-            .map((part) => {
-                if ( part === '' || part === '*' )
-                    return () => true
-
-                const varKey = this.schema.getVariableKey(part)
-
-                if ( varKey )
-                    return (value, data) => this.validateVariable(varKey, value, data)
-                else
-                    return (value) => value === part
-            })
-
-    }
-
-    splitUri(uri) {
-        return uri.replace(/^\/|\/$/g, '').split('/')
-    }
-
-    validate(value, data) {
-        const uriParts = this.splitUri(value)
-
-        for ( let [index, part] of uriParts.entries() ) {
-            const fn = this.validators[index]
-
-            if ( ! fn || ! fn(part, data) ) return false
-        }
-
-        return true
-    }
-}
+export { Validator }
+export { default as UriValidator } from './UriValidator'
 
 export default class UrnSchema {
     config = {
@@ -73,10 +11,10 @@ export default class UrnSchema {
     }
 
     constructor(keyInput, mapping = {}, config = {}) {
+        this.config = { ...this.config, ...config }
+
         this.keys       = keyInput.split(':')
         this.validators = this.keys.map((key) => mapping[key] || Validator)
-
-        this.config = { ...this.config, ...config }
 
         this.open  = escapeRegex(this.config.open)
         this.close = escapeRegex(this.config.close)
@@ -126,7 +64,7 @@ export default class UrnSchema {
     }
 }
 
-class Acl {
+export class Acl {
     constructor(schema, groups) {
         this.schema      = schema
         this.inputGroups = groups
