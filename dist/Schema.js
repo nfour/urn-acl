@@ -54,7 +54,7 @@ var UrnSchema = function () {
 
         this.regex = {
             // "${some.variable}" to "some.variable"
-            variable: new RegExp('^' + this.open + '([^' + this.close + '])+' + this.close + '$')
+            variable: new RegExp('^' + this.open + '([^' + this.close + ']+)' + this.close + '$')
         };
     }
 
@@ -125,7 +125,9 @@ var UrnSchema = function () {
         }
     }, {
         key: 'getVariableKey',
-        value: function getVariableKey(value) {
+        value: function getVariableKey() {
+            var value = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
             var match = value.match(this.regex.variable) || [];
             var varKey = match[1] || null;
 
@@ -165,10 +167,12 @@ var Acl = exports.Acl = function () {
         }
     }, {
         key: 'validate',
-        value: function validate(key, request, data) {
-            var group = this.groups[key];
+        value: function validate(groupKey, request, data) {
+            var group = this.groups[groupKey];
 
-            if (!group) throw new Error('Invalid group \'' + key + '\'');
+            if (!group) return { valid: false, error: 'Invalid group \'' + groupKey + '\'' };
+
+            var result = { valid: true, group: groupKey };
 
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
@@ -200,6 +204,7 @@ var Acl = exports.Acl = function () {
 
                             if (!valid) {
                                 urnInvalidated = true;
+                                result = _extends({}, result, { value: value, index: index, wildcarded: wildcarded, key: validator.key });
                                 break;
                             }
                         }
@@ -218,7 +223,10 @@ var Acl = exports.Acl = function () {
                         }
                     }
 
-                    if (!urnInvalidated) return true;
+                    if (urnInvalidated) {
+                        result = _extends({}, result, { valid: false });
+                        break;
+                    }
                 }
             } catch (err) {
                 _didIteratorError2 = true;
@@ -235,7 +243,7 @@ var Acl = exports.Acl = function () {
                 }
             }
 
-            return false;
+            return result;
         }
     }]);
 

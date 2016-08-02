@@ -21,7 +21,7 @@ describe('Urn', function() {
     it('Validates valid urns', () => {
         const acl = schema.createAcl({
             a: [
-                'urn:1.0:POST:foo:bar/*/${bazStr}',
+                'urn:1.0:${methods}:foo:bar/*/${items}?a&b&c',
             ],
 
             b: [
@@ -31,34 +31,39 @@ describe('Urn', function() {
 
         const validSamples = [
             {
-                url: "1.0/foo/bar/what/baz",
+                url: "1.0/foo/bar/what/baz?a=1",
                 method: 'POST',
             },
             {
-                url: "1.0/foo/bar/22/baz",
+                url: "1.0/foo/bar/22/2",
+                method: 'GET',
+            },
+            {
+                url: "1.0/foo/bar/22/2?a=1",
                 method: 'POST',
             }
         ]
 
 
         const data = {
-            bazStr: 'baz'
+            methods: [ 'POST', 'GET' ],
+            items: [ 'baz', 2 ]
         }
 
 
         for ( let { url, method } of validSamples ) {
             const params = parseUrl(url, method)
-            const a = acl.validate('a', params, data)
-            console.log({ params, a })
-            expect( a ).to.be.true
-            expect( acl.validate('b', params, data) ).to.be.true
+            const a =
+
+            expect( acl.validate('a', params, data).valid ).to.be.true
+            expect( acl.validate('b', params, data).valid ).to.be.true
         }
     })
 
     it('Validates invalid urns appropriately', () => {
         const acl = schema.createAcl({
             a: [
-                'urn:1.0:POST:foo:bar/*/${bazStr}',
+                'urn:1.0:POST:foo:bar/*/${bazStr}?c',
             ],
 
             b: [
@@ -87,6 +92,10 @@ describe('Urn', function() {
                 url: "1.0/foo/bar/3/baz",
                 method: 'GET',
             },
+            {
+                url: "1.0/foo/bar/3/baz?d=1",
+                method: 'POST',
+            },
         ]
 
         const data = {
@@ -96,8 +105,8 @@ describe('Urn', function() {
         for ( let { url, method } of invalidSamples ) {
             const params = parseUrl(url, method)
 
-            expect( acl.validate('a', params, data) ).to.be.false
-            expect( acl.validate('b', params, data) ).to.be.true
+            expect( acl.validate('a', params, data).valid ).to.be.false
+            expect( acl.validate('b', params, data).valid ).to.be.true
         }
     })
 })

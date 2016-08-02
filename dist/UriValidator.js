@@ -50,7 +50,6 @@ var UriValidator = function (_Validator) {
             });
 
             this.query = null;
-            console.log({ query: query });
 
             if (query.length) {
                 this.query = {};
@@ -116,15 +115,15 @@ var UriValidator = function (_Validator) {
             var _iteratorError2 = undefined;
 
             try {
-                for (var _iterator2 = uriParts.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                for (var _iterator2 = this.validators.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                     var _step2$value = _slicedToArray(_step2.value, 2);
 
                     var index = _step2$value[0];
-                    var part = _step2$value[1];
+                    var validate = _step2$value[1];
 
-                    var fn = this.validators[index];
+                    var part = uriParts[index];
 
-                    if (!fn || !fn(part, data)) return false;
+                    if (!validate || !validate(part, data)) return false;
                 }
 
                 // Checks ?orderBy&direction
@@ -144,7 +143,9 @@ var UriValidator = function (_Validator) {
             }
 
             if (this.query && query) {
-                var queryKeys = query.split('&').filter(function (v) {
+                var queryKeys = query.split('&').map(function (v) {
+                    return v.split('=')[0];
+                }).filter(function (v) {
                     return v;
                 });
 

@@ -21,7 +21,7 @@ export default class UrnSchema {
 
         this.regex = {
             // "${some.variable}" to "some.variable"
-            variable: new RegExp(`^${this.open}([^${this.close}])+${this.close}$`)
+            variable: new RegExp(`^${this.open}([^${this.close}]+)${this.close}$`)
         }
     }
 
@@ -56,7 +56,7 @@ export default class UrnSchema {
         return new Acl(this, roles)
     }
 
-    getVariableKey(value) {
+    getVariableKey(value = '') {
         const match  = value.match(this.regex.variable) || []
         const varKey = match[1] || null
 
@@ -84,11 +84,13 @@ export class Acl {
         return validatorGroups
     }
 
-    validate(key, request, data) {
-        const group = this.groups[key]
+    validate(groupKey, request, data) {
+        const group = this.groups[groupKey]
 
         if ( ! group )
-            throw new Error(`Invalid group '${key}'`)
+            return { valid: false, error: `Invalid group '${groupKey}'` }
+
+        let result = { valid: true, group: groupKey }
 
         for ( let validators of group ) {
             let urnInvalidated = false
@@ -103,14 +105,17 @@ export class Acl {
 
                 if ( ! valid ) {
                     urnInvalidated = true
+                    result = { ...result, value, index, wildcarded, key: validator.key }
                     break
                 }
             }
 
-            if ( ! urnInvalidated )
-                return true
+            if ( urnInvalidated ) {
+                result = { ...result, valid: false }
+                break
+            }
         }
 
-        return false
+        return result
     }
 }

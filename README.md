@@ -27,14 +27,14 @@ acl.validate('group_a', {
     method  : 'POST',
     scope   : 'testing',
     uri     : 'products/22/items'
-}) // returns true
+}) // returns { valid: true, group: 'group_a' }
 
 acl.validate('group_a', {
     version : '2.0',
     method  : 'GET',
     scope   : 'testing',
     uri     : 'products/22/items'
-}) // returns false
+}) // returns { valid: false, group: 'group_a' }
 
 ```
 
@@ -62,7 +62,7 @@ acl.validate('group_a', {
     method  : 'GET',
     scope   : 'testing',
     uri     : 'products/22/items?order=size'
-}, data) // returns true
+}, data) // returns { valid: true, group: 'group_a' }
 ```
 
 In the above example the variables defined in `group_a`'s first urn are interpolated from the `data` object.
@@ -85,11 +85,11 @@ app.use((req, res, next) => {
 
     uri = uri.join('/') // Join it back up
 
-    const isAllowedThrough = acl.validate(auth.scope, {
+    const aclCheck = acl.validate(auth.scope, {
         version, scope, method, uri
-    })
+    }).valid
 
-    if ( isAllowedThrough )
+    if ( aclCheck.valid )
         return next()
     else
         return next( new ForbiddenError("Permission denied!!!") )

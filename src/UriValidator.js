@@ -8,7 +8,6 @@ export default class UriValidator extends Validator {
         query = query.split('&').filter((v) => v)
 
         this.query = null
-        console.log({ query })
 
         if ( query.length ) {
             this.query = {}
@@ -38,15 +37,17 @@ export default class UriValidator extends Validator {
         const uriParts = this.splitUri(uri)
 
         // Checks /some/url/22/path
-        for ( let [index, part] of uriParts.entries() ) {
-            const fn = this.validators[index]
+        for ( let [index, validate] of this.validators.entries() ) {
+            const part = uriParts[index]
 
-            if ( ! fn || ! fn(part, data) ) return false
+            if ( ! validate || ! validate(part, data) ) return false
         }
 
         // Checks ?orderBy&direction
         if ( this.query && query ) {
-            const queryKeys = query.split('&').filter((v) => v)
+            const queryKeys = query.split('&')
+                .map((v) => v.split('=')[0])
+                .filter((v) => v)
 
             for ( let key of queryKeys )
                 if ( ! ( key in this.query ) ) return false
