@@ -10,7 +10,7 @@ describe('Urn', function() {
 
 
     function parseUrl(url, method) {
-        let [ version, scope, ...uri ] = test.split('/')
+        let [ version, scope, ...uri ] = url.split('/')
 
         uri = uri.join('/')
 
@@ -31,7 +31,7 @@ describe('Urn', function() {
 
         const validSamples = [
             {
-                url: "1.0/foo/bar/what-ever/baz",
+                url: "1.0/foo/bar/what/baz",
                 method: 'POST',
             },
             {
@@ -48,8 +48,9 @@ describe('Urn', function() {
 
         for ( let { url, method } of validSamples ) {
             const params = parseUrl(url, method)
-
-            expect( acl.validate('a', params, data) ).to.be.true
+            const a = acl.validate('a', params, data)
+            console.log({ params, a })
+            expect( a ).to.be.true
             expect( acl.validate('b', params, data) ).to.be.true
         }
     })
