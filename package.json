@@ -8,6 +8,7 @@
 
     "scripts": {
         "test": "npm run build && nyc --require babel-register mocha -G $(find . -name '*.spec.js' -not -path '*/node_modules/*')",
+        "dev": "node -r babel-register test",
         "build": "babel ./src --out-dir ./dist"
     },
 

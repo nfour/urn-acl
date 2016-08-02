@@ -3,38 +3,21 @@ import { escapeRegex } from './utils'
 import Transposer from 'transposer'
 
 export class Validator {
-    config = {
-        open: "${",
-        close: "}"
-    }
-
-    constructor(key, value, config = {}) {
+    constructor(schema, { key, value }) {
+        this.schema = schema
         this.key    = key
         this.value  = value
-        this.config = { ...this.config, ...config }
-
-        //
-        // TODO: move this to UrnSchema, inherit an intance for each validators constructor
-        //
-        
-        this.open  = escapeRegex(this.config.open)
-        this.close = escapeRegex(this.config.close)
-
-        this.regex = {
-            variable: new RegExp(`^${this.open}([^${this.close}])+${this.close}$`)
-        }
     }
 
     compile() {
-        const match       = this.value.match(this.regex.variable) || []
-        this.transposeKey = match[1] || null
+        const varKey = this.schema.getVariableKey(this.value)
 
-        if ( this.transposeKey )
-            this.validate = this.validateInterpolated
+        if ( varKey )
+            this.validate = (value, data) => this.validateVariable(varKey, value, data)
     }
 
-    validateInterpolated(value, data) {
-        const resolvedValue = new Transposer(data).get(this.transposeKey)
+    validateVariable(varKey, value, data) {
+        const resolvedValue = new Transposer(data).get(varKey)
 
         const compare = (input) => String(input) === value
 
@@ -51,20 +34,57 @@ export class Validator {
 
 export class UriValidator extends Validator {
     compile() {
+        this.validators = this.splitUri(this.value)
+            .map((part) => {
+                if ( part === '' || part === '*' )
+                    return () => true
+
+                const varKey = this.schema.getVariableKey(part)
+
+                if ( varKey )
+                    return (value, data) => this.validateVariable(varKey, value, data)
+                else
+                    return (value) => value === part
+            })
 
     }
 
-    validate() {
-        /// Use compiled uri here!
+    splitUri(uri) {
+        return uri.replace(/^\/|\/$/g, '').split('/')
+    }
+
+    validate(value, data) {
+        const uriParts = this.splitUri(value)
+
+        for ( let [index, part] of uriParts.entries() ) {
+            const fn = this.validators[index]
+
+            if ( ! fn || ! fn(part, data) ) return false
+        }
 
         return true
     }
 }
 
 export default class UrnSchema {
-    constructor(keyInput, mapping = {}) {
+    config = {
+        open: "${",
+        close: "}"
+    }
+
+    constructor(keyInput, mapping = {}, config = {}) {
         this.keys       = keyInput.split(':')
         this.validators = this.keys.map((key) => mapping[key] || Validator)
+
+        this.config = { ...this.config, ...config }
+
+        this.open  = escapeRegex(this.config.open)
+        this.close = escapeRegex(this.config.close)
+
+        this.regex = {
+            // "${some.variable}" to "some.variable"
+            variable: new RegExp(`^${this.open}([^${this.close}])+${this.close}$`)
+        }
     }
 
     /**
@@ -85,9 +105,7 @@ export default class UrnSchema {
 
             if ( ! key ) break
 
-            console.log(key, { Fn })
-
-            const validator = new Fn(key, value)
+            const validator = new Fn(this, { key, value })
             validator.compile()
 
             compiled.push(validator)
@@ -98,6 +116,13 @@ export default class UrnSchema {
 
     createAcl(roles) {
         return new Acl(this, roles)
+    }
+
+    getVariableKey(value) {
+        const match  = value.match(this.regex.variable) || []
+        const varKey = match[1] || null
+
+        return varKey
     }
 }
 
@@ -137,8 +162,6 @@ class Acl {
 
                 const wildcarded = validator.value === '*' || ( validator.value === '' && index !== last )
                 const valid      = wildcarded || validator.validate(value, data)
-
-                console.log({ valid, wildcarded, value, last, index })
 
                 if ( ! valid ) {
                     urnInvalidated = true

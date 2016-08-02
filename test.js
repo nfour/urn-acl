@@ -6,7 +6,7 @@ const schema = new UrnSchema('version:method:scope:uri', {
 
 const aclSchema = schema.createAcl({
     rpo_audit_criteria: [
-        'urn:1.0:POST:rpo:audit_criteria',
+        'urn:1.0:POST:rpo:audit_criteria/*/test',
         'urn:3.0:*',
         'urn:2.0:GET:rpo:audit_criteria',
     ],
@@ -16,22 +16,31 @@ const aclSchema = schema.createAcl({
     ]
 })
 
-let [ version, scope, ...uri ] = "3.0/rpo/audit_criteria".split('/')
-const method = 'POST'
+const testCases = {
+    rpo_audit_criteria: [
+        "1.0/rpo/audit_criteria/22/test",
+        "3.0/rpo/test",
+        "2.0/erp/orders/2",
+        "4.0/fails/on/version",
+    ]
+}
 
-uri = uri.join('/')
+for ( let key in testCases )
+    for ( let test of testCases[key] ) {
+        let [ version, scope, ...uri ] = test.split('/')
+        const method = 'POST'
 
-console.log(aclSchema.groups.rpo_audit_criteria)
-console.log({ version, scope, uri, method })
+        uri = uri.join('/')
 
-console.log(
-    aclSchema.validate('rpo_audit_criteria', {
-        version, scope, uri, method
-    })
-)
+        // console.log(aclSchema.groups.rpo_audit_criteria)
+        console.log('-----------')
+        console.log(key, test)
+        console.log(key, test)
 
-console.log(
-    aclSchema.validate('pass_all', {
-        version, scope, uri, method
-    })
-)
+        console.log(
+            aclSchema.validate(key, {
+                version, scope, uri, method
+            })
+        )
+
+    }
