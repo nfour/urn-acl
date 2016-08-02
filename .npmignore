@@ -1,0 +1,4 @@
+src
+.babel*
+.editor*
+.eslint*

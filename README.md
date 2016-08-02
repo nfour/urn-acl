@@ -7,7 +7,7 @@ Features:
 - [x] Wildcarding `urn:*`
 - [x] Precompilation for performance
 - [x] Uri validation `urn:this/${is.a}/*/uri?with&a&query`
-- [x] ACL validation
+- [x] ACL's
 
 ```js
 import UrnSchema, { UriValidator } from 'urn-schema'
