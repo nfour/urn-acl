@@ -1,7 +1,7 @@
 {
     "name"        : "urn-schema",
-    "version"     : "0.1.0",
-    "description" : "",
+    "version"     : "0.1.1",
+    "description" : "URN schema validation",
 
     "main": "./dist/Schema",
 
@@ -9,7 +9,8 @@
         "test"  : "npm run build && nyc --require babel-register mocha -G test",
         "devtest"  : "mocha --require babel-register -G test",
         "dev"   : "node -r babel-register test",
-        "build" : "babel ./src --out-dir ./dist"
+        "build" : "babel ./src --out-dir ./dist",
+        "prepublish": "npm run test"
     },
 
     "dependencies": {

@@ -1,6 +1,6 @@
 # URN Schema
 
-This library handles [URN-like](https://en.wikipedia.org/wiki/Uniform_Resource_Name) schemas in a general way. A use case as described below would be for ACL's.
+This library handles URN schemas, similar to AWS ARN's, useful for access control.
 
 Features:
 - [x] Variable interpolation `urn:${some.dataset}`
@@ -8,6 +8,7 @@ Features:
 - [x] Precompilation for performance
 - [x] Uri validation `urn:this/${is.a}/*/uri?with&a&query`
 - [x] ACL's
+- [x] Conforms to [URN](https://en.wikipedia.org/wiki/Uniform_Resource_Name)
 
 ```js
 import UrnSchema, { UriValidator } from 'urn-schema'
