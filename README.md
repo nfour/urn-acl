@@ -82,7 +82,9 @@ app.use((req, res, next) => {
     const { method, originalUrl, auth } = req
 
     // Take off the first 2 parts
-    let [ version, scope, ...uri ] = originalUrl.split('/')
+    let [ version, scope, ...uri ] = originalUrl
+        .replace(/^\/|\/$/g, '') // Remove trailing & leading slashes
+        .split('/')
 
     uri = uri.join('/') // Join it back up
 
