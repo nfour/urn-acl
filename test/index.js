@@ -21,7 +21,9 @@ describe('Urn', function() {
     it('Validates valid urns', () => {
         const acl = schema.createAcl({
             a: [
+                'urn:6.0:*', // Should skip
                 'urn:1.0:${methods}:foo:bar/*/${items}?a&b&c',
+                'urn:2.0:${methods}:foo:bar/*/${items}?a&b&c',
             ],
 
             b: [
@@ -39,7 +41,7 @@ describe('Urn', function() {
                 method: 'GET',
             },
             {
-                url: "1.0/foo/bar/22/2?a=1",
+                url: "2.0/foo/bar/22/2?a=1",
                 method: 'POST',
             }
         ]
@@ -53,7 +55,6 @@ describe('Urn', function() {
 
         for ( let { url, method } of validSamples ) {
             const params = parseUrl(url, method)
-            const a =
 
             expect( acl.validate('a', params, data).valid ).to.be.true
             expect( acl.validate('b', params, data).valid ).to.be.true

@@ -93,7 +93,7 @@ export class Acl {
         let result = { valid: true, group: groupKey }
 
         for ( let validators of group ) {
-            let urnInvalidated = false
+            let isValidUrn = false
 
             const last = validators.length - 1
 
@@ -103,19 +103,18 @@ export class Acl {
                 const wildcarded = validator.value === '*' || ( validator.value === '' && index !== last )
                 const valid      = wildcarded || validator.validate(value, data)
 
+                result = { ...result, valid, value, index, wildcarded, key: validator.key }
+
                 if ( ! valid ) {
-                    urnInvalidated = true
-                    result = { ...result, value, index, wildcarded, key: validator.key }
+                    isValidUrn = true
                     break
                 }
             }
 
-            if ( urnInvalidated ) {
-                result = { ...result, valid: false }
-                break
-            }
+            if ( ! isValidUrn )
+                return result
         }
 
-        return result
+        return { ...result, valid: false }
     }
 }

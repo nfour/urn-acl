@@ -182,7 +182,7 @@ var Acl = exports.Acl = function () {
                 for (var _iterator2 = group[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                     var validators = _step2.value;
 
-                    var urnInvalidated = false;
+                    var isValidUrn = false;
 
                     var last = validators.length - 1;
 
@@ -202,9 +202,10 @@ var Acl = exports.Acl = function () {
                             var wildcarded = validator.value === '*' || validator.value === '' && index !== last;
                             var valid = wildcarded || validator.validate(value, data);
 
+                            result = _extends({}, result, { valid: valid, value: value, index: index, wildcarded: wildcarded, key: validator.key });
+                            console.log('validatioN!', index);
                             if (!valid) {
-                                urnInvalidated = true;
-                                result = _extends({}, result, { value: value, index: index, wildcarded: wildcarded, key: validator.key });
+                                isValidUrn = true;
                                 break;
                             }
                         }
@@ -223,10 +224,7 @@ var Acl = exports.Acl = function () {
                         }
                     }
 
-                    if (urnInvalidated) {
-                        result = _extends({}, result, { valid: false });
-                        break;
-                    }
+                    if (!isValidUrn) return result;
                 }
             } catch (err) {
                 _didIteratorError2 = true;
@@ -243,7 +241,7 @@ var Acl = exports.Acl = function () {
                 }
             }
 
-            return result;
+            return _extends({}, result, { valid: false });
         }
     }]);
 
