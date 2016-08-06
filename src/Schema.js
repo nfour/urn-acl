@@ -112,8 +112,9 @@ export class Acl {
 
             const last = validators.length - 1
 
-            for ( let [index, validator] of validators.entries() ) {
-                const value = request[validator.key]
+            for ( let index in validators ) {
+                const validator = validators[index]
+                const value     = request[validator.key]
 
                 const wildcarded = validator.value === '*' || ( validator.value === '' && index !== last )
                 const valid      = wildcarded || validator.validate(value, data)

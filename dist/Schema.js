@@ -11,6 +11,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _lutils = require('lutils');
+
 var _utils = require('./utils');
 
 var _Validator = require('./Validator');
@@ -166,65 +168,20 @@ var Acl = exports.Acl = function () {
             return validatorGroups;
         }
     }, {
-        key: 'validate',
-        value: function validate(groupKey, request, data) {
-            var group = this.groups[groupKey];
-
-            if (!group) return { valid: false, error: 'Invalid group \'' + groupKey + '\'' };
-
-            var result = { valid: true, group: groupKey };
-
+        key: 'validateMany',
+        value: function validateMany(groups, request, data) {
+            var result = void 0;
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
             var _iteratorError2 = undefined;
 
             try {
-                for (var _iterator2 = group[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var validators = _step2.value;
+                for (var _iterator2 = groups[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var item = _step2.value;
 
-                    var isValidUrn = false;
+                    result = this.validate(item, request, data);
 
-                    var last = validators.length - 1;
-
-                    var _iteratorNormalCompletion3 = true;
-                    var _didIteratorError3 = false;
-                    var _iteratorError3 = undefined;
-
-                    try {
-                        for (var _iterator3 = validators.entries()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                            var _step3$value = _slicedToArray(_step3.value, 2);
-
-                            var index = _step3$value[0];
-                            var validator = _step3$value[1];
-
-                            var value = request[validator.key];
-
-                            var wildcarded = validator.value === '*' || validator.value === '' && index !== last;
-                            var valid = wildcarded || validator.validate(value, data);
-
-                            result = _extends({}, result, { valid: valid, value: value, index: index, wildcarded: wildcarded, key: validator.key });
-
-                            if (!valid) {
-                                isValidUrn = true;
-                                break;
-                            }
-                        }
-                    } catch (err) {
-                        _didIteratorError3 = true;
-                        _iteratorError3 = err;
-                    } finally {
-                        try {
-                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                                _iterator3.return();
-                            }
-                        } finally {
-                            if (_didIteratorError3) {
-                                throw _iteratorError3;
-                            }
-                        }
-                    }
-
-                    if (!isValidUrn) return result;
+                    if (result.valid) break;
                 }
             } catch (err) {
                 _didIteratorError2 = true;
@@ -237,6 +194,63 @@ var Acl = exports.Acl = function () {
                 } finally {
                     if (_didIteratorError2) {
                         throw _iteratorError2;
+                    }
+                }
+            }
+
+            return result;
+        }
+    }, {
+        key: 'validate',
+        value: function validate(grouping, request, data) {
+            if (_lutils.typeOf.Array(grouping)) return this.validateMany(grouping, request, data);
+
+            var group = this.groups[grouping];
+
+            if (!group) return { valid: false, error: 'Invalid group \'' + grouping + '\'' };
+
+            var result = { valid: true, group: grouping };
+
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = group[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var validators = _step3.value;
+
+                    var isValidUrn = false;
+
+                    var last = validators.length - 1;
+
+                    for (var index in validators) {
+                        var validator = validators[index];
+                        var value = request[validator.key];
+
+                        var wildcarded = validator.value === '*' || validator.value === '' && index !== last;
+                        var valid = wildcarded || validator.validate(value, data);
+
+                        result = _extends({}, result, { valid: valid, value: value, index: index, wildcarded: wildcarded, key: validator.key });
+
+                        if (!valid) {
+                            isValidUrn = true;
+                            break;
+                        }
+                    }
+
+                    if (!isValidUrn) return result;
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
                     }
                 }
             }
