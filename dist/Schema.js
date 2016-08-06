@@ -203,7 +203,7 @@ var Acl = exports.Acl = function () {
                             var valid = wildcarded || validator.validate(value, data);
 
                             result = _extends({}, result, { valid: valid, value: value, index: index, wildcarded: wildcarded, key: validator.key });
-                            console.log('validatioN!', index);
+
                             if (!valid) {
                                 isValidUrn = true;
                                 break;

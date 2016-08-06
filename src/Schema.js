@@ -1,3 +1,4 @@
+import { typeOf } from 'lutils'
 import { escapeRegex } from './utils'
 import Validator from './Validator'
 import UriValidator from './UriValidator'
@@ -84,13 +85,27 @@ export class Acl {
         return validatorGroups
     }
 
-    validate(groupKey, request, data) {
-        const group = this.groups[groupKey]
+    validateMany(groups, request, data) {
+        let result
+        for ( let item of groups ) {
+            result = this.validate(item, request, data)
+
+            if ( result.valid ) break
+        }
+
+        return result
+    }
+
+    validate(grouping, request, data) {
+        if ( typeOf.Array(grouping) )
+            return this.validateMany(grouping, request, data)
+
+        const group = this.groups[grouping]
 
         if ( ! group )
-            return { valid: false, error: `Invalid group '${groupKey}'` }
+            return { valid: false, error: `Invalid group '${grouping}'` }
 
-        let result = { valid: true, group: groupKey }
+        let result = { valid: true, group: grouping }
 
         for ( let validators of group ) {
             let isValidUrn = false

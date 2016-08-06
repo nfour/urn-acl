@@ -34,7 +34,7 @@
         "max-nested-callbacks"  : [1, 6],
         "max-params"            : [1, 4],
         "new-parens"            : 1,
-        "comma-spacing"         : [1, {"before": false, "after": true}],
+        "comma-spacing"         : [1, { "before": false, "after": true }],
         "consistent-this"       : [1, "self"]
     },
 

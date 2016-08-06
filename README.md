@@ -90,12 +90,12 @@ app.use((req, res, next) => {
 
     const aclCheck = acl.validate(auth.scope, {
         version, scope, method, uri
-    }).valid
+    })
 
     if ( aclCheck.valid )
         return next()
-    else
-        return next( new ForbiddenError("Permission denied!!!") )
+
+    return next( new ForbiddenError("Permission denied!!!") )
 })
 
 ```
